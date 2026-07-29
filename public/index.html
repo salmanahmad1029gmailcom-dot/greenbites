@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Green Bites - Fresh & Healthy Food</title>
+<style>
+  :root{
+    --green-dark:#1b4332;
+    --green-mid:#2d6a4f;
+    --green-light:#40916c;
+    --green-accent:#95d5b2;
+    --bg:#f6fbf8;
+    --text:#1b1b1b;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,sans-serif;}
+  body{background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
+
+  /* ===== SIDEBAR ===== */
+  .sidebar{
+    width:230px;
+    background:linear-gradient(180deg,var(--green-dark),var(--green-mid));
+    color:#fff;
+    position:fixed;
+    top:0;left:0;bottom:0;
+    padding:25px 18px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    z-index:100;
+    transition:transform 0.35s ease, width 0.35s ease;
+  }
+  .sidebar.closed{
+    transform:translateX(-100%);
+  }
+  .sidebar-close-btn{
+    position:absolute;
+    top:14px;right:14px;
+    width:30px;height:30px;
+    background:rgba(255,255,255,0.15);
+    border:none;
+    border-radius:50%;
+    color:#fff;
+    font-size:16px;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:0.2s;
+  }
+  .sidebar-close-btn:hover{background:rgba(255,255,255,0.3);}
+
+  .sidebar-open-btn{
+    position:fixed;
+    top:50%;left:0;
+    transform:translateY(-50%);
+    width:36px;height:56px;
+    background:var(--green-mid);
+    color:#fff;
+    border:none;
+    border-radius:0 10px 10px 0;
+    font-size:18px;
+    cursor:pointer;
+    z-index:110;
+    display:none;
+    align-items:center;justify-content:center;
+    box-shadow:2px 0 10px rgba(0,0,0,0.2);
+  }
+  .sidebar-open-btn:hover{background:var(--green-light);}
+  .sidebar-open-btn.show{display:flex;}
+
+  .sidebar h1{
+    font-size:24px;
+    margin-bottom:30px;
+    display:flex;align-items:center;gap:8px;
+    padding-right:20px;
+  }
+  .sidebar h1 span{color:var(--green-accent);}
+  .sidebar a{
+    color:#e8f5e9;
+    text-decoration:none;
+    padding:12px 14px;
+    border-radius:8px;
+    font-size:15px;
+    transition:0.25s;
+    display:flex;align-items:center;gap:10px;
+  }
+  .sidebar a:hover, .sidebar a.active{
+    background:var(--green-light);
+    padding-left:20px;
+  }
+  .sidebar .footer-note{
+    margin-top:auto;
+    font-size:12px;
+    color:#c7e8d2;
+    opacity:0.8;
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  .main{
+    margin-left:230px;
+    width:calc(100% - 230px);
+    transition:margin-left 0.35s ease, width 0.35s ease;
+  }
+  .main.full{
+    margin-left:0;
+    width:100%;
+  }
+
+  /* ===== TOP NAV ===== */
+  .topbar{
+    background:#fff;
+    padding:16px 30px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    box-shadow:0 2px 8px rgba(0,0,0,0.06);
+    position:sticky;top:0;z-index:50;
+  }
+  .topbar .tagline{color:var(--green-mid);font-weight:600;}
+  .topbar-left{display:flex;align-items:center;gap:14px;}
+  .marky-bar{
+    display:flex;align-items:center;gap:8px;
+    background:var(--green-accent);
+    padding:6px 14px 6px 6px;
+    border-radius:25px;
+  }
+  .marky-bar .avatar{
+    width:34px;height:34px;
+    border-radius:50%;
+    background:var(--green-dark);
+    display:flex;align-items:center;justify-content:center;
+    font-size:18px;
+  }
+  .marky-bar .name{
+    font-weight:700;
+    color:var(--green-dark);
+    font-size:14px;
+  }
+  .topbar button{
+    background:var(--green-mid);
+    color:#fff;border:none;
+    padding:10px 20px;border-radius:25px;
+    cursor:pointer;font-size:14px;
+  }
+
+  /* ===== HERO / SLIDER ===== */
+  .hero{
+    padding:30px;
+    text-align:center;
+  }
+  .hero h2{
+    font-size:30px;
+    color:var(--green-dark);
+    margin-bottom:5px;
+  }
+  .hero p{
+    color:#555;
+    margin-bottom:20px;
+  }
+
+  .slider-wrap{
+    max-width:1100px;
+    width:100%;
+    margin:0 auto;
+    background:#fff;
+    border-radius:18px;
+    box-shadow:0 10px 30px rgba(27,67,50,0.15);
+    overflow:hidden;
+    padding-bottom:18px;
+  }
+  .slider{
+    position:relative;
+    width:100%;
+    height:550px;
+    overflow:hidden;
+    background:#eafaf1;
+  }
+  .slide{
+    position:absolute;
+    top:0;left:0;
+    width:100%;height:100%;
+    opacity:0;
+    transition:opacity 0.8s ease-in-out;
+  }
+  .slide.active{opacity:1;}
+  .slide img{
+    width:100%;height:100%;
+    object-fit:cover;
+    display:block;
+  }
+  .slide-name{
+    text-align:center;
+    padding:16px 10px 4px;
+    font-size:22px;
+    font-weight:700;
+    color:var(--green-dark);
+  }
+  .slide-counter{
+    text-align:center;
+    font-size:13px;
+    color:#888;
+  }
+  .dots{
+    display:flex;justify-content:center;gap:5px;
+    padding:10px 0 0;
+    flex-wrap:wrap;
+    max-width:1100px;margin:0 auto;
+  }
+  .dots span{
+    width:7px;height:7px;border-radius:50%;
+    background:#c8e6c9;cursor:pointer;
+  }
+  .dots span.active{background:var(--green-mid);}
+
+  .loading{
+    padding:60px 20px;
+    color:var(--green-mid);
+    font-size:16px;
+  }
+
+  /* ===== MENU GRID (below slider) ===== */
+  .menu-section{padding:10px 30px 50px;}
+  .menu-section h3{
+    color:var(--green-dark);
+    font-size:22px;
+    margin:30px 0 15px;
+    text-align:center;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+    gap:18px;
+    max-width:1100px;
+    margin:0 auto;
+  }
+  .card{
+    background:#fff;
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 4px 12px rgba(0,0,0,0.07);
+    transition:0.25s;
+  }
+  .card:hover{transform:translateY(-5px);}
+  .card img{width:100%;height:130px;object-fit:cover;}
+  .card .card-name{
+    padding:10px;
+    font-size:14px;
+    font-weight:600;
+    text-align:center;
+    color:var(--green-dark);
+  }
+
+  footer{
+    text-align:center;
+    padding:40px 20px;
+    color:#555;
+    background:#eafaf1;
+  }
+  footer .about-title{
+    color:var(--green-dark);
+    font-size:26px;
+    letter-spacing:1px;
+    margin-bottom:14px;
+  }
+  footer .about-line{
+    font-size:14px;
+    margin:6px 0;
+    max-width:600px;
+    margin-left:auto;
+    margin-right:auto;
+    line-height:1.6;
+  }
+
+  @media(max-width:800px){
+    .sidebar{width:70px;padding:15px 8px;}
+    .sidebar h1{font-size:0;}
+    .sidebar h1 span{font-size:0;}
+    .sidebar a span.label{display:none;}
+    .main{margin-left:70px;width:calc(100% - 70px);}
+    .slider{height:280px;}
+  }
+
+  /* ===== CONTACT SECTION ===== */
+  .contact-section{
+    max-width:500px;
+    margin:0 auto 50px;
+    padding:0 20px;
+  }
+  .contact-section h3{
+    text-align:center;
+    color:var(--green-dark);
+    font-size:22px;
+    margin-bottom:15px;
+  }
+  .contact-section form, .modal-box form{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .contact-section input, .contact-section textarea,
+  .modal-box input, .modal-box textarea{
+    padding:12px 14px;
+    border:1px solid #d5e8dc;
+    border-radius:8px;
+    font-size:14px;
+    font-family:inherit;
+    resize:vertical;
+  }
+  .contact-section button, .modal-box button{
+    background:var(--green-mid);
+    color:#fff;
+    border:none;
+    padding:12px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:15px;
+    font-weight:600;
+  }
+  .contact-section button:hover, .modal-box button:hover{background:var(--green-light);}
+  .form-msg{
+    text-align:center;
+    margin-top:10px;
+    font-size:14px;
+    color:var(--green-dark);
+    font-weight:600;
+  }
+
+  /* ===== ORDER MODAL ===== */
+  .modal-overlay{
+    display:none;
+    position:fixed;
+    top:0;left:0;right:0;bottom:0;
+    background:rgba(0,0,0,0.5);
+    z-index:200;
+    align-items:center;
+    justify-content:center;
+  }
+  .modal-overlay.show{display:flex;}
+  .modal-box{
+    background:#fff;
+    border-radius:14px;
+    padding:26px;
+    width:90%;
+    max-width:420px;
+    position:relative;
+  }
+  .modal-box h3{color:var(--green-dark);margin-bottom:16px;}
+  .modal-close{
+    position:absolute;
+    top:12px;right:14px;
+    background:none;
+    border:none;
+    font-size:18px;
+    cursor:pointer;
+    color:#777;
+  }
+</style>
+</head>
+<body>
+
+  <!-- ===== SIDEBAR ===== -->
+  <div class="sidebar" id="sidebar">
+    <button class="sidebar-close-btn" id="closeBtn" title="Sidebar band karein">✕</button>
+    <h1>🍃 <span>Green Bites</span></h1>
+    <a href="#" class="active">🏠 <span class="label">Home</span></a>
+    <a href="#menu-section">🍽️ <span class="label">Menu</span></a>
+    <a href="#slider-section">📸 <span class="label">Gallery</span></a>
+    <a href="#about">ℹ️ <span class="label">About Us</span></a>
+    <a href="#contact">✉️ <span class="label">Contact</span></a>
+    <div class="footer-note">🌿 Fresh. Healthy. Delicious.</div>
+  </div>
+
+  <!-- Button jo sidebar band hone par dikhta hai, isay dobara khol deta hai -->
+  <button class="sidebar-open-btn" id="openBtn" title="Sidebar kholein">☰</button>
+
+  <!-- ===== MAIN ===== -->
+  <div class="main" id="mainContent">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="tagline">🌱 Green Bites — Eat Fresh, Live Healthy</div>
+      </div>
+      <button id="orderBtn">Order Now</button>
+    </div>
+
+    <div class="hero" id="slider-section">
+      <h2>Delicious Food Gallery</h2>
+      <p>Slider mein Pizza, Grilled Burger, Biryani aur Gulab Jamun ki asli photos hain — har 3 second baad next</p>
+
+      <div class="slider-wrap">
+        <div class="slider" id="slider">
+          <div class="loading" id="loadingMsg">Loading fresh food images...</div>
+        </div>
+        <div class="slide-name" id="slideName"></div>
+        <div class="slide-counter" id="slideCounter"></div>
+        <div class="dots" id="dots"></div>
+      </div>
+    </div>
+
+    <div class="menu-section" id="menu-section">
+      <h3>Full Menu Gallery (30+ Items)</h3>
+      <div class="grid" id="grid">
+        <div class="loading">Loading menu...</div>
+      </div>
+    </div>
+
+    <footer id="about">
+      <h3 class="about-title">ABOUT US</h3>
+      <p class="about-line">WELCOME TO GREEN BITES</p>
+      <p class="about-line">THIS IS A FOOD WEBSITE YOU ORDER FOOD AND WE WILL DELIVER FOOD TO YOU AT TIME</p>
+      <p class="about-line">THANK YOU FOR READ THIS MESSAGE</p>
+    </footer>
+
+    <!-- ===== CONTACT SECTION (backend se juda hua) ===== -->
+    <div class="contact-section" id="contact">
+      <h3>Contact Us</h3>
+      <form id="contactForm">
+        <input type="text" id="cName" placeholder="Your Name" required>
+        <input type="text" id="cPhone" placeholder="Phone Number" required>
+        <textarea id="cMessage" placeholder="Your Message" rows="4" required></textarea>
+        <button type="submit">Send Message</button>
+      </form>
+      <p id="contactMsg" class="form-msg"></p>
+    </div>
+  </div>
+
+  <!-- ===== ORDER MODAL (backend se juda hua) ===== -->
+  <div class="modal-overlay" id="orderModal">
+    <div class="modal-box">
+      <button class="modal-close" id="orderModalClose">✕</button>
+      <h3>Place Your Order</h3>
+      <form id="orderForm">
+        <input type="text" id="oName" placeholder="Your Name" required>
+        <input type="text" id="oPhone" placeholder="Phone Number" required>
+        <input type="text" id="oAddress" placeholder="Delivery Address" required>
+        <textarea id="oItems" placeholder="What would you like to order? (e.g. 1x Pizza, 2x Biryani)" rows="3" required></textarea>
+        <button type="submit">Submit Order</button>
+      </form>
+      <p id="orderMsg" class="form-msg"></p>
+    </div>
+  </div>
+
+<script>
+// ================= GREEN BITES - FOOD DATA LOADER =================
+// Images + names dono ek hi API record se aate hain, isliye har image
+// ka naam hamesha 100% sahi (correct) us image ke food ke mutabik hota hai.
+
+let currentSlide = 0;
+let sliderTimer = null;
+let sliderFoods = []; // exactly these 4 foods for the slider
+
+// In slider mein hamesha yehi 4 foods dikhengay, sahi naam ke saath
+// source: 'mealdb'  = TheMealDB ki curated professional food photography
+//         'wiki'    = Wikipedia ki image
+//         'foodish' = Foodish API ki dedicated category photo (bilkul sahi match, e.g. sirf burger)
+const sliderFoodNames = [
+  { name: 'Pizza', query: 'Pizza', source: 'wiki' },
+  { name: 'Grilled Burger', query: 'burger', source: 'foodish' },
+  { name: 'Biryani', query: 'Biryani', source: 'mealdb' },
+  { name: 'Gulab Jamun', query: 'Gulab jamun', source: 'wiki' }
+];
+
+async function fetchWikiImage(query){
+  const url = `https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query)}&gsrlimit=1&prop=pageimages&pithumbsize=700&format=json&origin=*`;
+  const res = await fetch(url);
+  const data = await res.json();
+  if(data.query && data.query.pages){
+    const page = Object.values(data.query.pages)[0];
+    if(page && page.thumbnail) return page.thumbnail.source;
+  }
+  return null;
+}
+
+async function fetchMealDbImage(query){
+  const url = `https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(query)}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  if(data.meals && data.meals.length){
+    return data.meals[0].strMealThumb;
+  }
+  return null;
+}
+
+async function fetchFoodishImage(category){
+  const url = `https://foodish-api.com/api/images/${encodeURIComponent(category)}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  return data.image || null;
+}
+
+async function loadSliderFoods(){
+  sliderFoods = [];
+  for(const item of sliderFoodNames){
+    let imgUrl = null;
+    try{
+      if(item.source === 'mealdb') imgUrl = await fetchMealDbImage(item.query);
+      else if(item.source === 'foodish') imgUrl = await fetchFoodishImage(item.query);
+      else imgUrl = await fetchWikiImage(item.query);
+      // Kuch na milay to Wikipedia se fallback try kar lo
+      if(!imgUrl && item.source !== 'wiki'){
+        imgUrl = await fetchWikiImage(item.name);
+      }
+    }catch(e){
+      console.error('Error loading '+item.name, e);
+    }
+    sliderFoods.push({ name: item.name, img: imgUrl });
+  }
+  buildSlider();
+}
+
+function buildSlider(){
+  const slider = document.getElementById('slider');
+  const dots = document.getElementById('dots');
+  slider.innerHTML = '';
+  dots.innerHTML = '';
+
+  sliderFoods.forEach((food, i)=>{
+    const slideDiv = document.createElement('div');
+    slideDiv.className = 'slide' + (i===0 ? ' active' : '');
+    slideDiv.innerHTML = `<img src="${food.img || ''}" alt="${food.name}" onerror="this.style.opacity='0'">`;
+    slider.appendChild(slideDiv);
+
+    const dot = document.createElement('span');
+    dot.className = i===0 ? 'active' : '';
+    dot.addEventListener('click', ()=> showSlide(i));
+    dots.appendChild(dot);
+  });
+
+  updateCaption();
+  startAutoSlide();
+}
+
+function updateCaption(){
+  document.getElementById('slideName').textContent = sliderFoods[currentSlide].name;
+  document.getElementById('slideCounter').textContent = `${currentSlide+1} / ${sliderFoods.length}`;
+  document.querySelectorAll('.dots span').forEach((d,i)=>{
+    d.classList.toggle('active', i===currentSlide);
+  });
+}
+
+function showSlide(index){
+  const slides = document.querySelectorAll('.slide');
+  slides[currentSlide].classList.remove('active');
+  currentSlide = index;
+  slides[currentSlide].classList.add('active');
+  updateCaption();
+  restartAutoSlide();
+}
+
+function nextSlide(){
+  const nextIndex = (currentSlide + 1) % sliderFoods.length;
+  showSlideAuto(nextIndex);
+}
+
+function showSlideAuto(index){
+  const slides = document.querySelectorAll('.slide');
+  slides[currentSlide].classList.remove('active');
+  currentSlide = index;
+  slides[currentSlide].classList.add('active');
+  updateCaption();
+}
+
+function startAutoSlide(){
+  sliderTimer = setInterval(nextSlide, 3000); // 3 seconds
+}
+function restartAutoSlide(){
+  clearInterval(sliderTimer);
+  startAutoSlide();
+}
+
+const letters = ['a','b','c','p','s','t','r','m','l','g','f','k','o','v','n'];
+let foods = []; // { name, img } - menu gallery ke liye (neechay wala grid)
+
+async function loadGridFoods(){
+  for(const letter of letters){
+    try{
+      const res = await fetch(`https://www.themealdb.com/api/json/v1/1/search.php?f=${letter}`);
+      const data = await res.json();
+      if(data.meals){
+        data.meals.forEach(m=>{
+          foods.push({ name: m.strMeal, img: m.strMealThumb });
+        });
+      }
+    }catch(e){ console.error('Error loading letter '+letter, e); }
+    if(foods.length >= 45) break;
+  }
+  foods = foods.filter((f,i,arr)=> arr.findIndex(x=>x.name===f.name)===i).slice(0,36);
+  buildGrid();
+}
+
+function buildGrid(){
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  foods.forEach(food=>{
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <img src="${food.img}" alt="${food.name}">
+      <div class="card-name">${food.name}</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+loadSliderFoods();
+loadGridFoods();
+
+// ================= SIDEBAR CLOSE / OPEN =================
+const sidebar = document.getElementById('sidebar');
+const mainContent = document.getElementById('mainContent');
+const closeBtn = document.getElementById('closeBtn');
+const openBtn = document.getElementById('openBtn');
+
+closeBtn.addEventListener('click', ()=>{
+  sidebar.classList.add('closed');
+  mainContent.classList.add('full');
+  openBtn.classList.add('show');
+});
+
+openBtn.addEventListener('click', ()=>{
+  sidebar.classList.remove('closed');
+  mainContent.classList.remove('full');
+  openBtn.classList.remove('show');
+});
+
+// ================= ORDER MODAL =================
+const orderBtn = document.getElementById('orderBtn');
+const orderModal = document.getElementById('orderModal');
+const orderModalClose = document.getElementById('orderModalClose');
+const orderForm = document.getElementById('orderForm');
+const orderMsg = document.getElementById('orderMsg');
+
+orderBtn.addEventListener('click', ()=> orderModal.classList.add('show'));
+orderModalClose.addEventListener('click', ()=> orderModal.classList.remove('show'));
+orderModal.addEventListener('click', (e)=>{
+  if(e.target === orderModal) orderModal.classList.remove('show');
+});
+
+orderForm.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const payload = {
+    name: document.getElementById('oName').value,
+    phone: document.getElementById('oPhone').value,
+    address: document.getElementById('oAddress').value,
+    items: document.getElementById('oItems').value
+  };
+  orderMsg.textContent = 'Sending your order...';
+  try{
+    const res = await fetch('/api/order', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if(data.success){
+      orderMsg.textContent = 'Order received! We will deliver it soon.';
+      orderForm.reset();
+    }else{
+      orderMsg.textContent = 'Something went wrong. Please try again.';
+    }
+  }catch(err){
+    orderMsg.textContent = 'Backend server is not running.';
+  }
+});
+
+// ================= CONTACT FORM =================
+const contactForm = document.getElementById('contactForm');
+const contactMsg = document.getElementById('contactMsg');
+
+contactForm.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const payload = {
+    name: document.getElementById('cName').value,
+    phone: document.getElementById('cPhone').value,
+    message: document.getElementById('cMessage').value
+  };
+  contactMsg.textContent = 'Sending...';
+  try{
+    const res = await fetch('/api/contact', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if(data.success){
+      contactMsg.textContent = 'Message sent! We will get back to you soon.';
+      contactForm.reset();
+    }else{
+      contactMsg.textContent = 'Something went wrong. Please try again.';
+    }
+  }catch(err){
+    contactMsg.textContent = 'Backend server is not running.';
+  }
+});
+</script>
+</body>
+</html>

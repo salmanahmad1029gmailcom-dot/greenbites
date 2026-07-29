@@ -1,0 +1,16 @@
+{
+  "name": "green-bites-backend",
+  "version": "1.0.0",
+  "description": "Backend server for Green Bites food website - handles orders and contact messages",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongodb": "^6.21.0",
+    "mongoose": "^8.5.1"
+  }
+}
