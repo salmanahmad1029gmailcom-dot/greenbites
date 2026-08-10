@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://greenbites-production-3f57.up.railway.app/sitemap.xml
